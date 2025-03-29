@@ -1,3 +1,6 @@
 [submodule "backend/pgvector"]
 	path = backend/pgvector
 	url = https://github.com/pgvector/pgvector.git
+[submodule "backend/src/pgvector"]
+	path = backend/src/pgvector
+	url = https://github.com/pgvector/pgvector.git
