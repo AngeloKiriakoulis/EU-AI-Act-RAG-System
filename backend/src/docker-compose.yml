@@ -1,0 +1,39 @@
+version: '3.8'  # specify your version here
+
+services:
+  db:
+    image: ankane/pgvector:latest
+    container_name: postgres_db
+    restart: always
+    env_file: .env  # Load environment variables
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend  # reference the backend network
+
+  app:
+    build: .
+    container_name: fastapi_app
+    restart: always
+    depends_on:
+      - db
+    env_file: .env  # Load environment variables
+    ports:
+      - "8000:8000"
+    networks:
+      - backend  # reference the backend network
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/docker/volumes/src_postgres_data/_data
+
+networks:
+  backend:  # define the network
+    driver: bridge  # or any other driver you prefer
+

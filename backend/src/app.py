@@ -13,8 +13,10 @@ class EUAIActQA:
         self.model = genai.GenerativeModel('gemini-1.5-pro')
         
     def get_db_connection(self):
+        load_dotenv()
         return psycopg2.connect(
-            host=os.getenv('DB_HOST'),
+            # host=os.getenv('DB_HOST'),
+            host='db',
             port=os.getenv('DB_PORT'),
             dbname=os.getenv('DB_NAME'),
             user=os.getenv('DB_USER'),
@@ -71,7 +73,13 @@ class EUAIActQA:
         return response.text
 
 def main():
-    qa_system = EUAIActQA()
+    try:
+        qa_system = EUAIActQA()  # If this crashes, we handle the error
+    except Exception as e:
+        import traceback
+        print(f"Error initializing QA system: {e}")
+        print(traceback.format_exc())
+        qa_system = None  # Prevent crash loops    
     print("Welcome to the EU AI Act Q&A System!")
     print("Type 'quit' to exit.")
     
@@ -92,5 +100,5 @@ def main():
         print("\nAnswer:")
         print(answer)
 
-if __name__ == "__main__":
-    main() 
+# if __name__ == "__main__":
+#     main() 

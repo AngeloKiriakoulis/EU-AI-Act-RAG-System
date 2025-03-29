@@ -21,8 +21,10 @@ def setup_database():
     cur.execute(f"SELECT 1 FROM pg_database WHERE datname = '{os.getenv('DB_NAME')}'")
     exists = cur.fetchone()
     
-    if not exists:
-        cur.execute(f'CREATE DATABASE {os.getenv("DB_NAME")}')
+    # if not exists:
+    #     cur.execute(f'CREATE DATABASE {os.getenv("DB_NAME")}')
+    cur.execute(f'DROP DATABASE {os.getenv("DB_NAME")}')
+    cur.execute(f'CREATE DATABASE {os.getenv("DB_NAME")}')
     
     # Close connection to default database
     cur.close()
@@ -30,7 +32,7 @@ def setup_database():
     
     # Connect to our new database
     conn = psycopg2.connect(
-        host=os.getenv('DB_HOST'),
+        host=os.getenv('DB_HOST', 'db'),
         port=os.getenv('DB_PORT'),
         dbname=os.getenv('DB_NAME'),
         user=os.getenv('DB_USER'),
@@ -48,7 +50,7 @@ def setup_database():
         CREATE TABLE IF NOT EXISTS document_chunks (
             id SERIAL PRIMARY KEY,
             chunk_text TEXT NOT NULL,
-            embedding vector(768),
+            embedding vector(1024),
             metadata JSONB
         )
     ''')
