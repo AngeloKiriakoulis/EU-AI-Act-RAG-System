@@ -1,5 +1,3 @@
-version: '3.8'  # specify your version here
-
 services:
   db:
     image: ankane/pgvector:latest
@@ -28,10 +26,6 @@ services:
 volumes:
   postgres_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /var/lib/docker/volumes/src_postgres_data/_data
 
 networks:
   backend:  # define the network

@@ -4,14 +4,14 @@ from dotenv import load_dotenv
 
 def setup_database():
     load_dotenv()
-    
+
     # Connect to PostgreSQL
     conn = psycopg2.connect(
-        host=os.getenv('DB_HOST'),
-        port=os.getenv('DB_PORT'),
-        dbname='postgres',  # Connect to default database first
-        user=os.getenv('DB_USER'),
-        password=os.getenv('DB_PASSWORD')
+        host=os.getenv("DB_HOST"),  
+        port=os.getenv("DB_PORT"),
+        dbname="postgres",
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD")
     )
     
     conn.autocommit = True
