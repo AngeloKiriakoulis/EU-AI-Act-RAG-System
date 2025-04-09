@@ -47,6 +47,8 @@ async def ask_question(question: Question):
         
         # Generate answer
         answer = qa_system.generate_answer(question.text, relevant_chunks)
+
+        qa_system.log_query(question.text,relevant_chunks=relevant_chunks,answer = answer)
         
         return AnswerResponse(answer=answer, chunks=relevant_chunks)
     

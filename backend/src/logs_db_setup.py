@@ -4,14 +4,14 @@ from dotenv import load_dotenv
 
 def setup_logs_database():
     load_dotenv()
-
+    print("Connecting to", os.getenv("LOGS_HOST"), "on port", os.getenv("LOGS_DB_PORT"))
     # Connect to PostgreSQL
     conn = psycopg2.connect(
-        host=os.getenv("DB_HOST", "logs_db"),  
-        port=os.getenv("DB_PORT", 5433),
-        dbname="postgres",
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD")
+        host=os.getenv("LOGS_HOST", "logs_db"),  
+        port=int(os.getenv("LOGS_DB_PORT", 5432)),
+        dbname='postgres',
+        user=os.getenv("LOGS_USER"),
+        password=os.getenv("LOGS_PASSWORD")
     )
     
     conn.autocommit = True
@@ -30,11 +30,11 @@ def setup_logs_database():
     
     # Connect to logs database
     conn = psycopg2.connect(
-        host=os.getenv("DB_HOST", "logs_db"),
-        port=os.getenv("DB_PORT", 5433),
-        dbname="logs",
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD")
+        host=os.getenv("LOGS_HOST", "logs_db"),
+        port=int(os.getenv("LOGS_DB_PORT", 5432)),
+        dbname=os.getenv("LOGS_DB", "logs"),
+        user=os.getenv("LOGS_USER"),
+        password=os.getenv("LOGS_PASSWORD")
     )
     
     conn.autocommit = True

@@ -1,15 +1,29 @@
+version: '3.8'
+
 services:
   db:
     image: ankane/pgvector:latest
     container_name: postgres_db
     restart: always
-    env_file: .env  # Load environment variables
+    env_file: .env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - backend  # reference the backend network
+      - backend
+
+  logs_db:
+    image: postgres:15
+    container_name: logs_postgres_db
+    restart: always
+    env_file: .env
+    ports:
+      - "5433:5432"  # Exposes container's 5432 on host's 5433
+    volumes:
+      - logs_data:/var/lib/postgresql/data
+    networks:
+      - backend
 
   app:
     build: .
@@ -17,17 +31,20 @@ services:
     restart: always
     depends_on:
       - db
-    env_file: .env  # Load environment variables
+      - logs_db
+    env_file: .env
     ports:
       - "8000:8000"
     networks:
-      - backend  # reference the backend network
+      - backend
 
 volumes:
   postgres_data:
     driver: local
 
-networks:
-  backend:  # define the network
-    driver: bridge  # or any other driver you prefer
+  logs_data:
+    driver: local
 
+networks:
+  backend:
+    driver: bridge
