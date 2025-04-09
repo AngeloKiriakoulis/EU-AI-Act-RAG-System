@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
 import traceback
 
 from app import EUAIActQA
@@ -28,11 +27,20 @@ except Exception as e:
 class Question(BaseModel):
     text: str
 
+# Before response was a raw dict. With Pydantic we can have structured, typed responses.
+class ChunkMetadata(BaseModel):
+    text: str
+    metadata: dict
+    distance: float
+
+class AnswerResponse(BaseModel):
+    answer: str
+    chunks: list[ChunkMetadata]
+
 @app.post("/api/ask")
 async def ask_question(question: Question):
     if qa_system is None:
         raise HTTPException(status_code=500, detail="QA system failed to initialize.")
-    
     try:
         # Get relevant chunks
         relevant_chunks = qa_system.get_relevant_chunks(question.text)
@@ -40,11 +48,22 @@ async def ask_question(question: Question):
         # Generate answer
         answer = qa_system.generate_answer(question.text, relevant_chunks)
         
-        return {
-            "answer": answer,
-            "chunks": relevant_chunks
-        }
+        return AnswerResponse(answer=answer, chunks=relevant_chunks)
+    
     except Exception as e:
         print(f"Error: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# Basic endpoints to monitor deployment easily.
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
+@app.get("/info")
+def info():
+    return {
+        "model": "gemini-1.5-pro",
+        "embedding_model": "voyage-2",
+        "chunk_limit": 3
+    }
