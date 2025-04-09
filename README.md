@@ -135,20 +135,7 @@ CREATE TABLE IF NOT EXISTS query_logs (
 
 ---
 
-## ⚠️ Tips & Considerations
-
-- ✅ Add Docker volumes to persist Postgres data.
-- ⚙️ Add a reverse proxy + HTTPS if deploying (e.g., nginx or Traefik).
-- 📊 Log analytics could be expanded with user sessions, latency, etc.
-- 🔐 Don’t forget to protect secrets in production (e.g., with Vault or Docker secrets).
-
----
-
 ## 🙌 Credits
 Created by Aggelos as a robust, developer-friendly system to experiment with modern GenAI tools applied to real EU policy documents.
 
 ---
-
-## 📬 License
-MIT License — use it, share it, improve it!
-
