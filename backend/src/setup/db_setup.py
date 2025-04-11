@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 def setup_database():
     load_dotenv()
-
+    
     # Connect to PostgreSQL
     conn = psycopg2.connect(
         host=os.getenv("DB_HOST"),  
@@ -21,10 +21,8 @@ def setup_database():
     cur.execute(f"SELECT 1 FROM pg_database WHERE datname = '{os.getenv('DB_NAME')}'")
     exists = cur.fetchone()
     
-    # if not exists:
-    #     cur.execute(f'CREATE DATABASE {os.getenv("DB_NAME")}')
-    cur.execute(f'DROP DATABASE {os.getenv("DB_NAME")}')
-    cur.execute(f'CREATE DATABASE {os.getenv("DB_NAME")}')
+    if not exists:
+        cur.execute(f'CREATE DATABASE {os.getenv("DB_NAME")}')
     
     # Close connection to default database
     cur.close()

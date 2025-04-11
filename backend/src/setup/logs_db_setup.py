@@ -7,7 +7,7 @@ def setup_logs_database():
     print("Connecting to", os.getenv("LOGS_HOST"), "on port", os.getenv("LOGS_DB_PORT"))
     # Connect to PostgreSQL
     conn = psycopg2.connect(
-        host=os.getenv("LOGS_HOST", "logs_db"),  
+        host=os.getenv("LOGS_HOST", "logs-db"),  
         port=int(os.getenv("LOGS_DB_PORT", 5432)),
         dbname='postgres',
         user=os.getenv("LOGS_USER"),
@@ -30,7 +30,7 @@ def setup_logs_database():
     
     # Connect to logs database
     conn = psycopg2.connect(
-        host=os.getenv("LOGS_HOST", "logs_db"),
+        host=os.getenv("LOGS_HOST", "logs-db"),
         port=int(os.getenv("LOGS_DB_PORT", 5432)),
         dbname=os.getenv("LOGS_DB", "logs"),
         user=os.getenv("LOGS_USER"),
