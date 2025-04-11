@@ -14,14 +14,15 @@ echo "✅ PostgreSQL is up!"
 echo "🔍 Checking if databases need to be initialized..."
 
 # Use a marker file to avoid re-running the setup
-if [ ! -f /src/.db_initialized ]; then
+if [ ! -f /data/.db_initialized ]; then
   echo "⚙️ Initializing databases..."
 
   python /src/setup/db_setup.py
   python /src/setup/process_documents.py
   python /src/setup/logs_db_setup.py
 
-  touch /src/.db_initialized
+  chmod 777 /data
+  touch /data/.db_initialized || { echo "❌ Failed to create marker file!"; exit 1; }
   echo "✅ Initialization complete."
 else
   echo "🚀 Databases already initialized. Skipping setup."
