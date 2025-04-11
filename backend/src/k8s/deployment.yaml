@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-app
+  namespace: myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi-app
+  template:
+    metadata:
+      labels:
+        app: fastapi-app
+    spec:
+      containers:
+        - name: fastapi-app
+          image: aggeloskyriakoulis/fastapi-app:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: app-secrets
+          # volumeMounts:
+          #   - name: db-init
+          #     mountPath: /new
+      volumes:
+        - name: db-init
+          emptyDir: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: db
+          image: ankane/pgvector:latest
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: app-secrets
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: pgdata
+          emptyDir: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logs-db
+  namespace: myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logs-db
+  template:
+    metadata:
+      labels:
+        app: logs-db
+    spec:
+      containers:
+        - name: logs-db
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: app-secrets
+          volumeMounts:
+            - name: logsdata
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: logsdata
+          emptyDir: {}

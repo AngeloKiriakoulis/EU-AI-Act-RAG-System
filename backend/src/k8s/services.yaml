@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-app
+  namespace: myapp
+spec:
+  selector:
+    app: fastapi-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer  # or NodePort if testing locally
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: myapp
+spec:
+  selector:
+    app: db
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logs-db
+  namespace: myapp
+spec:
+  selector:
+    app: logs-db
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
