@@ -5,10 +5,8 @@ from typing import List, Dict
 import traceback
 import psycopg2
 from dotenv import load_dotenv
-# type: ignore
-from voyageai import Client
-# type: ignore
-import google.generativeai as genai
+from voyageai import Client # type: ignore
+import google.generativeai as genai # type: ignore
 
 class EUAIActQA:
     """
@@ -114,7 +112,7 @@ class EUAIActQA:
             cur.close()
             conn.close()
         # type: ignore
-        except Exception as e:
+        except Exception as e: # type: ignore
             print("⚠️ Failed to log query:", e)
             print(traceback.format_exc())
 
