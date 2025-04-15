@@ -57,6 +57,7 @@ async def ask_question(question: Question):
         print(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 # Basic endpoints to monitor deployment easily.
 @app.get("/health")
 def health_check():
