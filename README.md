@@ -1,55 +1,47 @@
 # EU AI Act RAG System
 
-A lightweight Retrieval-Augmented Generation (RAG) system designed to answer user questions about the European Union AI Act. This project uses FastAPI for the backend API, Voyage AI for embeddings, Google Gemini 1.5 Pro for answer generation, and PostgreSQL for both chunk storage and query logging.
+A lightweight Retrieval-Augmented Generation (RAG) system designed to answer user questions about the European Union AI Act.
+
+This project combines FastAPI, PostgreSQL, Voyage AI embeddings, and Google Gemini 1.5 Pro to deliver accurate answers based on EU legislative text.
 
 ---
 
-## 🚀 Project Structure & Services
+## 📦 Project Structure
 
-This system is containerized using Docker Compose and includes:
-
-### 1. **FastAPI App**
-- Serves as the main API to handle user questions.
-- Retrieves relevant document chunks based on query embeddings.
-- Generates answers using Google Gemini.
-- Logs all user queries and the retrieved chunks into a separate logging database.
-
-### 2. **Main PostgreSQL DB**
-- Stores embedded chunks of the EU AI Act and their metadata.
-- Used to retrieve the most relevant content for a user's query.
-
-### 3. **Logs PostgreSQL DB**
-- Stores logs of each user query, including:
-  - The question
-  - The generated answer
-  - The top relevant chunks (as JSON)
-  - The distances (similarity scores)
+| Service         | Description |
+|-----------------|-------------|
+| `fastapi-app`   | Handles user questions, retrieves relevant document chunks, and returns answers using Gemini |
+| `db`            | Main PostgreSQL DB for embedded text chunks |
+| `logs-db`       | Secondary PostgreSQL DB for logging user queries and response metadata |
+| `pgadmin4` (optional) | UI to explore both databases |
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Python 3.10+**
-- **FastAPI**
-- **psycopg2**
-- **Voyage AI** (Embeddings)
-- **Google Generative AI (Gemini)**
-- **PostgreSQL**
-- **Docker & Docker Compose**
-- **PgAdmin4** (for DB browsing)
+- Python 3.12
+- FastAPI
+- PostgreSQL (x2)
+- Docker & Docker Compose (optional)
+- MicroK8s (for Kubernetes-based production deployments)
+- Voyage AI (for text embeddings)
+- Google Gemini 1.5 Pro (for answer generation)
 
 ---
 
-## 📦 Getting Started
+## 🚀 Local Development Options
 
-### 1. Clone the Repo
+### Option 1: 🐳 Docker Compose (Quick Start)
+
+#### 1. Clone the Repository
+
 ```bash
-git clone https://github.com/your-username/eu-ai-act-rag.git
-cd eu-ai-act-rag
+git clone https://github.com/AngeloKiriakoulis/eu.git
+cd eu
 ```
 
-### 2. Environment Variables
-Create a `.env` file:
+#### 2. Create a `.env` file
+
 ```env
 # Main DB
 DB_NAME=eu_act
@@ -69,28 +61,83 @@ VOYAGE_API_KEY=your_voyage_api_key
 GOOGLE_API_KEY=your_google_api_key
 ```
 
-### 3. Start the System
+#### 3. Start the system
+
 ```bash
 docker compose up --build
 ```
 
-### 4. Access PgAdmin
-PgAdmin is available at `http://localhost:5050`
-- Default credentials: `pgadmin4@admin.com / admin`
-- Add connections to `db` and `logs_db` containers
+#### 4. PgAdmin Access
+
+- Navigate to: `http://localhost:5050`
+- Default login: `pgadmin4@admin.com` / `admin`
+- Manually add connections to:
+  - `db` (`eu_act`)
+  - `logs_db` (`eu_logs`)
 
 ---
 
-## 📡 API Endpoints
+### Option 2: ☸️ Deploy to MicroK8s (Kubernetes Mode)
 
-### POST `/api/ask`
-Request Body:
+> Recommended for real-world cluster-based environments.
+
+#### 1. Install MicroK8s (Ubuntu)
+
+```bash
+sudo snap install microk8s --classic
+sudo microk8s enable dns storage
+```
+
+Optional (but useful):
+
+```bash
+sudo microk8s enable ingress
+```
+
+#### 2. Apply Kubernetes Manifests
+
+In the `k8s/` folder:
+
+- `pv.yaml`, `pvc.yaml`: Persistent volumes
+- `deployment.yaml`: Deploys FastAPI + Postgres DBs
+- `services.yaml`: Exposes services (NodePort by default)
+
+Run:
+
+```bash
+kubectl apply -f k8s/
+```
+
+#### 3. Access the FastAPI App
+
+Use `kubectl get svc` to find the correct NodePort, then visit:
+
+```text
+http://<MicroK8s-IP>:<NodePort>
+```
+
+Example:
+
+```
+http://172.19.205.48:31262
+```
+
+---
+
+## 🔌 API Endpoints
+
+### `POST /api/ask`
+
+**Request**
+
 ```json
 {
   "text": "What is the AI Act?"
 }
 ```
-Response:
+
+**Response**
+
 ```json
 {
   "answer": "The AI Act regulates the use of AI in the EU...",
@@ -99,17 +146,21 @@ Response:
       "text": "Relevant chunk text...",
       "metadata": {...},
       "distance": 0.14
-    },
-    ...
+    }
   ]
 }
 ```
 
-### GET `/health`
-Returns: `{ "status": "ok" }`
+---
 
-### GET `/info`
-Returns basic model info:
+### `GET /health`
+
+```json
+{ "status": "ok" }
+```
+
+### `GET /info`
+
 ```json
 {
   "model": "gemini-1.5-pro",
@@ -120,7 +171,7 @@ Returns basic model info:
 
 ---
 
-## 📋 Logging Schema (Logs DB)
+## 🗃️ Logs Database Schema
 
 ```sql
 CREATE TABLE IF NOT EXISTS query_logs (
@@ -136,6 +187,16 @@ CREATE TABLE IF NOT EXISTS query_logs (
 ---
 
 ## 🙌 Credits
-Created by Aggelos as a robust, developer-friendly system to experiment with modern GenAI tools applied to real EU policy documents.
+
+Created by **Aggelos** — designed to be a robust, developer-friendly system for exploring real-world legislation using state-of-the-art GenAI techniques.
 
 ---
+
+## 🧠 Future Enhancements
+
+- Helm chart packaging
+- TLS/Ingress + domain setup
+- Autoscaling and HPA configs
+- Prometheus + Grafana observability stack
+- PostgreSQL HA with persistent volumes
+
