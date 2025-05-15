@@ -199,4 +199,3 @@ Created by **Aggelos** — designed to be a robust, developer-friendly system fo
 - Autoscaling and HPA configs
 - Prometheus + Grafana observability stack
 - PostgreSQL HA with persistent volumes
-

@@ -31,7 +31,7 @@ class EUAIActQA:
         # Load environment variables
         self.voyage_client = Client(api_key=os.getenv('VOYAGE_API_KEY'))
         genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
-        self.model = genai.GenerativeModel('gemini-1.5-pro')
+        self.model = genai.GenerativeModel('gemini-2.0-flash')
 
     def get_db_connection(self):
         """
