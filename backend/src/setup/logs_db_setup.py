@@ -1,7 +1,10 @@
 """Python version 3.12"""
+
 import os
+
 import psycopg2
 from dotenv import load_dotenv
+
 
 def setup_logs_database():
     """
@@ -11,11 +14,11 @@ def setup_logs_database():
     print("Connecting to", os.getenv("LOGS_HOST"), "on port", os.getenv("LOGS_DB_PORT"))
     # Connect to PostgreSQL
     conn = psycopg2.connect(
-        host=os.getenv("LOGS_HOST", "logs-db"),  
-        port=int(os.getenv("LOGS_DB_PORT", 5432)), # type: ignore
-        dbname='postgres',
+        host=os.getenv("LOGS_HOST", "logs-db"),
+        port=int(os.getenv("LOGS_DB_PORT", 5432)),  # type: ignore
+        dbname="postgres",
         user=os.getenv("LOGS_USER"),
-        password=os.getenv("LOGS_PASSWORD")
+        password=os.getenv("LOGS_PASSWORD"),
     )
 
     conn.autocommit = True
@@ -26,7 +29,7 @@ def setup_logs_database():
     exists = cur.fetchone()
 
     if not exists:
-        cur.execute('CREATE DATABASE logs')
+        cur.execute("CREATE DATABASE logs")
 
     # Close connection to default database
     cur.close()
@@ -35,17 +38,18 @@ def setup_logs_database():
     # Connect to logs database
     conn = psycopg2.connect(
         host=os.getenv("LOGS_HOST", "logs-db"),
-        port=int(os.getenv("LOGS_DB_PORT", 5432)), # type: ignore
+        port=int(os.getenv("LOGS_DB_PORT", 5432)),  # type: ignore
         dbname=os.getenv("LOGS_DB", "logs"),
         user=os.getenv("LOGS_USER"),
-        password=os.getenv("LOGS_PASSWORD")
+        password=os.getenv("LOGS_PASSWORD"),
     )
 
     conn.autocommit = True
     cur = conn.cursor()
 
     # Create table for storing query logs
-    cur.execute('''
+    cur.execute(
+        """
         CREATE TABLE IF NOT EXISTS query_logs (
             id SERIAL PRIMARY KEY,
             timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -54,10 +58,12 @@ def setup_logs_database():
             top_chunks JSONB,
             distances FLOAT[]
         )
-    ''')
+    """
+    )
 
     cur.close()
     conn.close()
+
 
 if __name__ == "__main__":
     setup_logs_database()
