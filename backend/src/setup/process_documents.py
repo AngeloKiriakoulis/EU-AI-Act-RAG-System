@@ -6,7 +6,8 @@ from typing import Dict, List
 
 import psycopg2
 from dotenv import load_dotenv
-from langchain.text_splitter import RecursiveCharacterTextSplitter  # type: ignore
+from langchain.text_splitter import \
+    RecursiveCharacterTextSplitter  # type: ignore
 from voyageai import Client  # type: ignore
 
 
