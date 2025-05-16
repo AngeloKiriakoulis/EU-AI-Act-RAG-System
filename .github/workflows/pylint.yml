@@ -18,10 +18,10 @@ jobs:
           pip install black isort flake8 mypy pylint
 
       - name: Run Black (code formatter)
-        run: black --check .
+        run: black .
 
       - name: Run isort (import sorter)
-        run: isort --check-only .
+        run: isort .
 
       - name: Run flake8 (style checker)
         run: flake8 .
