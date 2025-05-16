@@ -14,3 +14,16 @@ repos:
     rev: 7.2.0
     hooks:
       - id: flake8
+
+  - repo: https://github.com/pylint-dev/pylint
+    rev: v3.3.7
+    hooks:
+      - id: pylint
+        additional_dependencies:
+          - fastapi
+          - pydantic
+          - psycopg2-binary
+          - python-dotenv
+          - google-generativeai
+          - voyageai
+          - langchain      

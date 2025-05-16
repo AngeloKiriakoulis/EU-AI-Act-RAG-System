@@ -2,11 +2,10 @@
 
 import traceback
 
+from app import EUAIActQA
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
-from app import EUAIActQA
 
 app = FastAPI()
 

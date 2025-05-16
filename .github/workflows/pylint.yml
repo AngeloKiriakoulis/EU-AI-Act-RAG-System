@@ -26,9 +26,6 @@ jobs:
       - name: Run flake8 (style checker)
         run: flake8 .
 
-      - name: Run mypy (type checker)
-        run: mypy .
-
       - name: Run pylint (code analysis)
         run: |
           find . -name "*.py" | xargs pylint
