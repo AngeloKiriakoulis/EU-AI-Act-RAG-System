@@ -13,20 +13,21 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install lint dependencies
         run: |
-          pip install black isort flake8 mypy pylint
+          pip install -r requirements-lint.txt
 
-      - name: Run Black (code formatter)
+      - name: Run Black
         run: black .
 
-      - name: Run isort (import sorter)
+      - name: Run isort
         run: isort .
 
-      - name: Run flake8 (style checker)
+      - name: Run flake8
         run: flake8 .
 
-      - name: Run pylint (code analysis)
+      - name: Run pylint
         run: |
-          find . -name "*.py" | xargs pylint
+          find . -name "*.py" | xargs pylint --fail-under=8.0
+
 
