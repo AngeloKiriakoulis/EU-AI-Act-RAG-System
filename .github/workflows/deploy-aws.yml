@@ -57,7 +57,7 @@ jobs:
 
       - name: Create Kubernetes secrets
         run: |
-          kubectl create namespace myapp --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace myapp --dry-run=client -o yaml | kubectl apply --validate=false -f -
           
           kubectl create secret generic app-secrets \
             --namespace myapp \
@@ -67,7 +67,7 @@ jobs:
             --from-literal=LOGS_PASSWORD=${{ secrets.LOGS_PASSWORD }} \
             --from-literal=VOYAGE_API_KEY=${{ secrets.VOYAGE_API_KEY }} \
             --from-literal=GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} \
-            --dry-run=client -o yaml | kubectl apply -f -
+            --dry-run=client -o yaml | kubectl apply --validate=false -f -
 
       - name: Deploy to Kubernetes
         run: |
