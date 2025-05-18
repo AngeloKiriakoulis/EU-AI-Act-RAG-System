@@ -1,0 +1,78 @@
+name: Deploy to AWS EKS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: euaiact-qa-app
+  EKS_CLUSTER_NAME: euaiact-qa-eks
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd backend/src
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Update Kubernetes configuration with image tag
+        run: |
+          export ECR_REPOSITORY_URL=${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY
+          export DB_HOST=$(aws rds describe-db-instances --db-instance-identifier euaiact-qa-db --query 'DBInstances[0].Endpoint.Address' --output text)
+          export DB_NAME=${{ secrets.DB_NAME }}
+          export LOGS_HOST=$(aws rds describe-db-instances --db-instance-identifier euaiact-qa-logs-db --query 'DBInstances[0].Endpoint.Address' --output text)
+          export LOGS_DB=${{ secrets.LOGS_DB }}
+          
+          # Use envsubst to replace variables in the Kubernetes config
+          envsubst < .github/kubernetes/k8s-aws.yaml > .github/kubernetes/k8s-aws-rendered.yaml
+
+      - name: Setup kubeconfig
+        run: |
+          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region ${{ env.AWS_REGION }}
+
+      - name: Create Kubernetes secrets
+        run: |
+          kubectl create namespace myapp --dry-run=client -o yaml | kubectl apply -f -
+          
+          kubectl create secret generic app-secrets \
+            --namespace myapp \
+            --from-literal=DB_USER=${{ secrets.DB_USER }} \
+            --from-literal=DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            --from-literal=LOGS_USER=${{ secrets.LOGS_USER }} \
+            --from-literal=LOGS_PASSWORD=${{ secrets.LOGS_PASSWORD }} \
+            --from-literal=VOYAGE_API_KEY=${{ secrets.VOYAGE_API_KEY }} \
+            --from-literal=GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f .github/kubernetes/k8s-aws-rendered.yaml
+          
+      - name: Wait for deployment to complete
+        run: |
+          kubectl rollout status deployment/fastapi-app -n myapp --timeout=300s
